@@ -75,9 +75,8 @@ public class MainActivity extends AppCompatActivity {
         StringBuilder result = new StringBuilder();
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
-        DocumentBuilder builder = null;
         try {
-            builder = factory.newDocumentBuilder();
+            DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.parse(new ByteArrayInputStream(response.getBytes("UTF-8")));
             XPath xpath = XPathFactory.newInstance().newXPath();
             NodeList entries = (NodeList) xpath.evaluate("//*/content/text()",
