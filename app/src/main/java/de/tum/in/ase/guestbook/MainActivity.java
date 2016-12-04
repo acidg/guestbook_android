@@ -7,7 +7,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.restlet.resource.ClientResource;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import java.io.IOException;
 
@@ -29,13 +34,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_download:
-                new AsyncTask() {
-                    @Override
-                    protected Object doInBackground(Object[] objects) {
-                        downloadGuestbook();
-                        return null;
-                    }
-                }.doInBackground(null);
+                downloadGuestbook();
             default:
                 return false;
         }
@@ -43,18 +42,23 @@ public class MainActivity extends AppCompatActivity {
 
     private void downloadGuestbook() {
         String url = "http://ase2016-148507.appspot.com/rest/guestbook/";
-        try {
-            final String rawAnswer = new ClientResource(url).get().getText();
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    TextView textView = (TextView) findViewById(R.id.text_view);
-                    textView.setText(rawAnswer);
-                }
-            });
-        } catch (IOException e) {
-            Toast.makeText(this.getApplicationContext(),
-                    "Could not download guestbook", Toast.LENGTH_SHORT).show();
-        }
+        RequestQueue queue = Volley.newRequestQueue(this);
+        final TextView textView = (TextView) findViewById(R.id.text_view);
+
+        // Construct request
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        textView.setText(response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                textView.setText("That didn't work!");
+            }
+        });
+
+        queue.add(stringRequest);
     }
 }
